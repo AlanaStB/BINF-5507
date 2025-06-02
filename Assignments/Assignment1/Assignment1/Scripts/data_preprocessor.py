@@ -1,3 +1,5 @@
+#“I used ChatGPT  to help troubleshoot errors for this assignment.”
+
 # import all necessary libraries here
 import pandas as pd
 import numpy as np
@@ -68,16 +70,22 @@ def remove_redundant_features(data, threshold=0.9):
     """
     #Create a correlation matrix
     categorical_cols = data.select_dtypes(include=['object']).columns
+    # Convert categorical variables so they can be processed by the corr function.
     cor_data = pd.get_dummies(data, columns=categorical_cols, drop_first=True)
     corr_matrix = cor_data.corr()
+    # the correlation with measure the same column against itself, so we need to remove the duplicates
+    corr_nodups = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
     redundant_features = []
     # Identify columns with correlation above the threshold
-    for r in range(corr_matrix.shape[0]):
-        for c in range(corr_matrix.shape[1]):
-            if abs(corr_matrix.iloc[r, c]) >threshold:
-                colname = corr_matrix.columns[r]
+    for r in range(corr_nodups.shape[0]):
+        for c in range(corr_nodups.shape[1]):
+            if abs(corr_nodups.iloc[r, c]) >threshold:
+                colname = corr_nodups.columns[r]
                 redundant_features.append(colname)
+    print(f'Redundant features identified: {redundant_features}')
+    # Drop the redundant columns
     data = data.drop(columns=redundant_features)
+    
     return data  
 
 # ---------------------------------------------------
