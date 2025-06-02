@@ -67,7 +67,9 @@ def remove_redundant_features(data, threshold=0.9):
     :return: pandas DataFrame
     """
     #Create a correlation matrix
-    corr_matrix = data.corr()
+    categorical_cols = data.select_dtypes(include=['object']).columns
+    cor_data = pd.get_dummies(data, columns=categorical_cols, drop_first=True)
+    corr_matrix = cor_data.corr()
     redundant_features = []
     # Identify columns with correlation above the threshold
     for r in range(corr_matrix.shape[0]):
