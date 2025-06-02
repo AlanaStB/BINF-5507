@@ -14,7 +14,7 @@ def impute_missing_values(data, strategy='mean'):
     :param strategy: str, imputation method ('mean', 'median', 'mode')
     :return: pandas DataFrame
     """
-    data = data.loc[:, data.isnull().mean() < 0.75].copy()  # Remove columns with more than 75% missing values
+    data = data.loc[:, data.isnull().mean() < 0.25].copy()  # Remove columns with more than 75% missing values
     #seperate numerical and categorical columns
     numerical_cols = data.select_dtypes(include=['float64', 'int64']).columns
     categorical_cols = data.select_dtypes(include=['object']).columns
