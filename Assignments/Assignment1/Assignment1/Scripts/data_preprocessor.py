@@ -14,9 +14,23 @@ def impute_missing_values(data, strategy='mean'):
     :param strategy: str, imputation method ('mean', 'median', 'mode')
     :return: pandas DataFrame
     """
-    # TODO: Fill missing values based on the specified strategy
-    pass
-
+    data = data.loc[:, data.isnull().mean() < 0.75].copy()  # Remove columns with more than 75% missing values
+    #seperate numerical and categorical columns
+    numerical_cols = data.select_dtypes(include=['float64', 'int64']).columns
+    categorical_cols = data.select_dtypes(include=['object']).columns
+    # filling missing numerical values by method selected
+    for col in numerical_cols:
+         if strategy == 'mean':
+             data[col] = data[col].fillna(data[col].mean()) 
+         elif strategy == 'median':
+            data[col] = data[col].fillna(data[col].median())
+         elif strategy == 'mode':
+            data[col] = data[col].fillna(data[col].mode()[0])
+    # filling missing categorical values by mode
+    for col in categorical_cols:
+        data[col] = data[col].fillna(data[col].mode()[0])
+    
+    return data  # Return the DataFrame with imputed values
 # 2. Remove Duplicates
 def remove_duplicates(data):
     """
@@ -24,8 +38,9 @@ def remove_duplicates(data):
     :param data: pandas DataFrame
     :return: pandas DataFrame
     """
-    # TODO: Remove duplicate rows
-    pass
+    data = data.drop_duplicates()
+    return data  # Remove duplicate rows
+
 
 # 3. Normalize Numerical Data
 def normalize_data(data,method='minmax'):
@@ -33,8 +48,16 @@ def normalize_data(data,method='minmax'):
     :param data: pandas DataFrame
     :param method: str, normalization method ('minmax' (default) or 'standard')
     """
-    # TODO: Normalize numerical data using Min-Max or Standard scaling
-    pass
+    numerical_cols = data.select_dtypes(include=['float64', 'int64']).columns
+    
+    if method == 'minmax':
+        scaler = MinMaxScaler()
+        data[numerical_cols] = scaler.fit_transform(data[numerical_cols])
+    elif method == 'standard':
+        scaler = StandardScaler()
+        data[numerical_cols] = scaler.fit_transform(data[numerical_cols])
+    return data  
+
 
 # 4. Remove Redundant Features   
 def remove_redundant_features(data, threshold=0.9):
@@ -43,8 +66,17 @@ def remove_redundant_features(data, threshold=0.9):
     :param threshold: float, correlation threshold
     :return: pandas DataFrame
     """
-    # TODO: Remove redundant features based on the correlation threshold (HINT: you can use the corr() method)
-    pass
+    #Create a correlation matrix
+    corr_matrix = data.corr()
+    redundant_features = []
+    # Identify columns with correlation above the threshold
+    for r in range(corr_matrix.shape[0]):
+        for c in range(corr_matrix.shape[1]):
+            if abs(corr_matrix.iloc[r, c]) >threshold:
+                colname = corr_matrix.columns[r]
+                redundant_features.append(colname)
+    data = data.drop(columns=redundant_features)
+    return data  
 
 # ---------------------------------------------------
 
