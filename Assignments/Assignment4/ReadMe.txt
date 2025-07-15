@@ -1,0 +1,1 @@
+Assignment 4 of Machine Learning and AI course. This is a clinical data of head and neck cancer patients from the Cancer Imahing Archive.
